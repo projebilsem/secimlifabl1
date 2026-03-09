@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Buzun Üzerindeki Karar - Seçimli Fabl</title>
+  <style>
+    :root{
+      --bg:#eef7fb;
+      --panel:#d9eef8;
+      --panel-2:#c5e4f2;
+      --ice:#f8fdff;
+      --line:#2b5870;
+      --blue:#2f74b7;
+      --blue-dark:#21598f;
+      --text:#10212b;
+      --muted:#44606f;
+      --good:#eaf6ff;
+      --shadow:0 6px 18px rgba(12,53,77,.12);
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: Arial, Helvetica, sans-serif;
+      background:linear-gradient(180deg,#eef7fb 0%, #e7f2f8 100%);
+      color:var(--text);
+    }
+
+    .app{
+      max-width:1100px;
+      margin:0 auto;
+      padding:18px 14px 28px;
+    }
+
+    .title{
+      background:var(--panel-2);
+      border:2px solid var(--line);
+      border-radius:28px;
+      text-align:center;
+      padding:18px 12px;
+      font-size:2.1rem;
+      font-weight:800;
+      box-shadow:var(--shadow);
+      margin-bottom:16px;
+    }
+
+    .top-note{
+      background:var(--panel);
+      border:2px solid var(--line);
+      border-radius:24px;
+      padding:16px 18px;
+      line-height:1.5;
+      box-shadow:var(--shadow);
+      margin-bottom:14px;
+    }
+
+    .layout{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:16px;
+      align-items:start;
+    }
+
+    .story-card{
+      padding:20px 22px;
+      min-height:560px;
+    }
+
+    .chapter-tag{
+      display:inline-block;
+      background:var(--blue);
+      color:#fff;
+      border-radius:999px;
+      padding:6px 12px;
+      font-size:.88rem;
+      font-weight:700;
+      margin-bottom:10px;
+    }
+
+    #storyText{
+      font-size:1.05rem;
+      line-height:1.65;
+      white-space:pre-wrap;
+    }
+
+    .choices{
+      display:grid;
+      gap:12px;
+      margin-top:18px;
+    }
+
+    .choice-btn, .action-btn{
+      width:100%;
+      border:2px solid var(--line);
+      border-radius:18px;
+      background:#dde8ef;
+      color:var(--text);
+      padding:14px 16px;
+      font-size:1rem;
+      font-weight:700;
+      text-align:left;
+      cursor:pointer;
+      transition:transform .12s ease, background .18s ease;
+      box-shadow:0 3px 10px rgba(12,53,77,.08);
+    }
+
+    .choice-btn:hover, .action-btn:hover{
+      transform:translateY(-1px);
+      background:#edf5fb;
+    }
+
+    .choice-code{
+      display:inline-block;
+      min-width:46px;
+      text-align:center;
+      background:var(--blue);
+      color:#fff;
+      border-radius:10px;
+      padding:4px 8px;
+      margin-right:10px;
+      font-size:.9rem;
+    }
+
+    .side-card{
+      display:none;
+    }
+
+    .side-card h3{
+      margin:0 0 10px;
+      font-size:1.15rem;
+    }
+
+    .progress-list{
+      margin:0;
+      padding-left:18px;
+      line-height:1.7;
+      color:var(--muted);
+      font-size:.97rem;
+    }
+
+    .ending-box{
+      margin-top:14px;
+      background:var(--good);
+      border:1.5px solid #8ab5d0;
+      border-radius:18px;
+      padding:14px;
+      display:none;
+    }
+
+    .ending-box.show{ display:block; }
+
+    .ending-title{
+      font-weight:800;
+      margin-bottom:8px;
+      color:var(--blue-dark);
+    }
+
+    .actions{
+      display:grid;
+      gap:10px;
+      margin-top:14px;
+    }
+
+    .map-box{
+      margin-top:14px;
+      background:#f4fbff;
+      border:1.5px dashed #8aa8bb;
+      border-radius:18px;
+      padding:12px;
+      font-size:.93rem;
+      line-height:1.5;
+    }
+
+    .footer-note{
+      margin-top:16px;
+      text-align:center;
+      color:var(--muted);
+      font-size:.85rem;
+    }
+
+    @media (max-width:900px){
+      .title{ font-size:1.6rem; }
+      .story-card{ padding:16px; min-height:auto; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="title">Buzun Üzerindeki Karar</div>
+
+    <div class="top-note">
+      <strong>Kutup temalı seçimli fabl:</strong> Aşağıdaki hikâyede seçim yaparak ilerle. Her seçim seni farklı bir dala götürür. Toplam <strong>8 farklı final</strong> vardır.
+    </div>
+
+    <div class="layout">
+      <section class="story-card">
+        <div class="chapter-tag" id="chapterTag">Başlangıç</div>
+        <div id="storyText"></div>
+        <div class="choices" id="choices"></div>
+
+        <div class="ending-box" id="endingBox">
+          <div class="ending-title" id="endingTitle"></div>
+          <div id="endingLesson"></div>
+        </div>
+
+        <div class="actions">
+          <button class="action-btn" id="backBtn">← Bir önceki seçime dön</button>
+          <button class="action-btn" id="restartBtn">↺ Hikâyeyi baştan başlat</button>
+        </div>
+      </section>
+
+      
+    </div>
+
+    <div class="footer-note">Kutup tavşanı, beyaz tilki ve fok ile buz üzerinde doğru kararı bulmaya çalış.</div>
+  </div>
+
+  <script>
+    const nodes = {
+      start: {
+        tag: 'Başlangıç',
+        text: `Kuzey Kutbu'nda uzun kış gecelerinden biri yaşanıyordu. Ay ışığı, buzların üstüne gümüş gibi yayılmıştı. Genç kutup tavşanı, yaşlı beyaz tilkisi ve dikkatli fok, kıyıya yakın bir buz düzlüğünde buluşmuştu.
+
+O gün hava alışılmadık derecede sessizdi. Ama bu sessizlik, huzurdan çok yaklaşan bir tehlikenin habercisi gibiydi.
+
+Beyaz tilki, burnunu havaya kaldırdı:
+"Bir şeyler değişiyor. Rüzgâr kesildiğinde bazen buz konuşur. Onu dinlemeyen, denize düşer."
+
+Tam o sırada uzakta yiyecek gibi görünen kararmış bir alan belirdi. Kutup tavşanı hemen oraya gitmek istedi. Fok ise önce çevreyi dikkatle incelemeyi önerdi.
+
+Şimdi ilk karar verilmeli.`,
+        choices: [
+          { code:'A', label:'kutup tavşan’nın önerisini dinleyip kararmış bölgeye doğru git.', next:'A' },
+          { code:'B', label:'fokun sözünü dinleyip önce çevreyi dikkatle incele.', next:'B' }
+        ]
+      },
+      A: {
+        tag: 'Dal A',
+        text: `kutup tavşan öne atıldı. Beyaz tilki isteksizce onu takip etti. Fok ise biraz geriden geliyordu. Kararmış alan yaklaştıkça buzun yüzeyi daha kaygan, daha ince görünmeye başladı.
+
+Birden ayaklarının altından hafif bir çıtırtı duyuldu.
+
+Beyaz tilki durdu:
+"Devam etmeden önce karar vermeliyiz. Ya hızla ilerleriz ya da geri çekilip başka bir yol ararız."`,
+        choices: [
+          { code:'A1', label:'Çıtırtıya rağmen hızlıca ilerle.', next:'A1' },
+          { code:'A2', label:'Geri çekil ve daha güvenli bir yol ara.', next:'A2' }
+        ]
+      },
+      A1: {
+        tag: 'Dal A1',
+        text: `kutup tavşan kulaklarını geriye yatırdı.
+"Şimdi dönmek zaman kaybı olur. Koşarsak geçeriz."
+
+Üçü birlikte hızlandı. Ama buz, acele edenleri sevmezdi. Önlerinde iki yol vardı: Kutup tavşanı önden gidebilir ya da hepsi yan yana ilerleyebilirdi.`,
+        choices: [
+          { code:'A1a', label:'Kutup tavşanı önden gitsin, diğerleri onu izlesin.', next:'A1a' },
+          { code:'A1b', label:'Hep birlikte yan yana ilerlesinler.', next:'A1b' }
+        ]
+      },
+      A2: {
+        tag: 'Dal A2',
+        text: `Beyaz tilki bu kez kararlı konuştu:
+"İnce buz üstünde cesaret değil, dikkat gerekir."
+
+Kutup tavşanı istemese de geri çekildiler. Biraz ileride iki farklı yol vardı. Biri kıyıya yakın, karla kaplı uzun bir yoldu. Diğeri kısa ama rüzgâra açık, çıplak buzlu bir geçitti.`,
+        choices: [
+          { code:'A2a', label:'Uzun ama güvenli görünen kıyı yolunu seç.', next:'A2a' },
+          { code:'A2b', label:'Kısa yolu seçip çabuk geçmeye çalış.', next:'A2b' }
+        ]
+      },
+      B: {
+        tag: 'Dal B',
+        text: `Fokun uyarısını dinleyen üçlü hemen ilerlemedi. Önce çevreyi incelediler. Fok buzun kenarındaki nefes deliğini, beyaz tilki rüzgâr yönünü, kutup tavşanı ise kar üstündeki izleri gözlemledi.
+
+Beyaz tilki konuştu:
+"İyi oldu durduğumuz. Kararmış alanın yanında taze kırık izleri var. Ama hâlâ seçim yapmamız gerek."`,
+        choices: [
+          { code:'B1', label:'Uzaktan gözlem yapmaya devam et.', next:'B1' },
+          { code:'B2', label:'Daha güvenli bilgi için başka hayvanların izlerini takip et.', next:'B2' }
+        ]
+      },
+      B1: {
+        tag: 'Dal B1',
+        text: `Üçü bir kar tümseğinin arkasına çekildi. Bir süre sonra uzaklardan bir kutup ayısının yavaşça bölgeye yaklaştığını gördüler. Ayı da kararmış bölgeye doğru ilerledi, sonra aniden durup yön değiştirdi.
+
+Fok fısıldadı:
+"Bakın, o bile oraya yaklaşmadı."
+
+Şimdi iki seçenek vardı.`,
+        choices: [
+          { code:'B1a', label:'Kutup ayısının yön değiştirdiği tarafa git.', next:'B1a' },
+          { code:'B1b', label:'Kutlayıp boş kalan bölgeyi fırsat bilerek kararmış alana yaklaş.', next:'B1b' }
+        ]
+      },
+      B2: {
+        tag: 'Dal B2',
+        text: `Üçlü, başka hayvanların izlerini izlemeye karar verdi. Kar üzerinde iki ayrı iz yolu vardı. Biri küçük kuş izleri gibi hafif ve dağınıktı. Diğeri ise ren geyiği sürüsünün eski, derin ve düzenli ayak izleriydi.
+
+Beyaz tilki dedi ki:
+"Küçük izler hızlı gelir geçer. Ama sürü izleri genelde güvenli yolu anlatır."`,
+        choices: [
+          { code:'B2a', label:'Kuş izlerini takip et.', next:'B2a' },
+          { code:'B2b', label:'Ren geyiği izlerini takip et.', next:'B2b' }
+        ]
+      },
+
+      A1a: {
+        tag: 'Final 1',
+        text: `Kutup tavşanı öne sıçradı. İlk birkaç adımda sorun olmadı. Ama tam kararmış bölgeye yaklaşırken buz çatladı. Kutup tavşanı bir anda ön ayaklarıyla soğuk suya gömüldü. Neyse ki beyaz tilki hemen onu boynundan çekip geri aldı.
+
+Kararmış alanın yiyecek değil, ince buzun altında biriken koyu su olduğu anlaşıldı.
+
+Kutup tavşanı titreyerek kıyıya döndü. O gece aç kaldılar ama hayatta kaldılar.`,
+        ending: 'Ders: Her fırsat sandığın şey kazanç değildir; bazen geri dönmek kaybetmek değil korunmaktır.'
+      },
+      A1b: {
+        tag: 'Final 2',
+        text: `Üçü yan yana ilerledi. Büyük bir çatırdama duyuldu. Fok son anda geriye atladı ama kutup tavşanı ile beyaz tilki buzun içine gömüldü.
+
+Fok suya dayanıklıydı. Hızla dönüp ikisini kıyıya yönlendirdi. Uzun uğraş sonunda üçünü de kurtardı ama hepsi bitkin düştü.
+
+Kıyıya vardıklarında beyaz tilki şöyle dedi:
+"Tehlikeli yerde birlik önemlidir, ama asıl bilgelik önce tehlikeyi anlamaktır."`,
+        ending: 'Ders: Birlik güçlüdür; fakat yanlış kararda birleşmek de tehlikeyi büyütebilir.'
+      },
+      A2a: {
+        tag: 'Final 3',
+        text: `Üçü kıyıya yakın uzun yolu izledi. Yol uzundu ama buz kalındı. Karın altında birkaç kabuklu canlı ve kıyıya vurmuş balık artıkları buldular.
+
+Kutup tavşanı başta söylenmişti; ama sonunda karnı doyunca beyaz tilkiye baktı:
+"Demek ki güvenli yol bazen uzun olsa da daha bereketliymiş."`,
+        ending: 'Ders: Sabırla seçilen güvenli yol, aceleyle seçilen kısa yoldan daha çok kazandırır.'
+      },
+      A2b: {
+        tag: 'Final 4',
+        text: `Kısa yol önce akıllıca göründü. Rüzgâr yüzlerine sert vuruyordu. Buz kırılmadı ama soğuk o kadar şiddetliydi ki kutup tavşanı yürümekte zorlandı. Beyaz tilkinin patileri uyuştu. Fok ise kuru buz üstünde yavaş kalıyordu.
+
+Sonunda geri dönmek zorunda kaldılar. Kırılmadılar ama güç kaybettiler.
+
+O gece barınaklarına vardıklarında yiyecek bulamamışlardı.`,
+        ending: 'Ders: Tehlike yalnızca kırılmak değildir; bazen yanlış seçim gücünü sessizce tüketir.'
+      },
+      B1a: {
+        tag: 'Final 5',
+        text: `Üçlü, ayının seçtiği yönü izledi. Bir süre sonra daha sağlam buzlara ulaştılar. Orada balıkçı kuşlardan kalmış birkaç parça buldular. Azdı ama güvenliydi.
+
+Kutup tavşanı bu kez sessizce başını eğdi:
+"Bazen güçlülerin ne yapmadığına bakmak, ne yaptığına bakmaktan daha öğreticiymiş."`,
+        ending: 'Ders: Bilgelik yalnız kendi gözünle görmek değil, başkalarının dikkatinden de öğrenmektir.'
+      },
+      B1b: {
+        tag: 'Final 6',
+        text: `Kutup tavşanı dayanamayıp öne çıktı:
+"Kutup ayısı gittiğine göre artık burası bize kalmıştır."
+
+Ama tehlike, terk edildi diye ortadan kalkmazdı.
+
+Buz aniden çöktü. Kutup tavşanı geriye sıçrayabildi ama kararmış alanın çevresi suyla doldu. Artık oradan geçmek imkânsızdı. Kaçmak zorunda kaldılar.
+
+Beyaz tilki, kutup tavşanına dönüp şöyle dedi:
+"Bir başkasının bıraktığını ganimet sanmak, çoğu zaman onun gördüğü tehlikeyi görmemektir."`,
+        ending: 'Ders: Başkalarının uzak durduğu şeyi körcesine fırsat sanmak, akılsız cesarettir.'
+      },
+      B2a: {
+        tag: 'Final 7',
+        text: `Kuş izlerini takip ettiler. İzler onları küçük bir kaya çıkıntısına götürdü. Orada rüzgârdan korunmuş bir alan ve biraz yosun, birkaç yumurta kabuğu, az da olsa yiyecek kalıntısı vardı.
+
+Kutup tavşanı sevindi:
+"Küçük izler küçük fırsatlara götürdü ama güvenliydi."
+
+Fok başını salladı:
+"Her küçük yol yanlış değildir; önemli olan dikkatle ilerlemektir."`,
+        ending: 'Ders: Küçük ve sessiz işaretler de doğru okunursa güvenli çözümler sunar.'
+      },
+      B2b: {
+        tag: 'Final 8',
+        text: `Ren geyiği izleri sağlam bir geçide çıkıyordu. Yol biraz uzundu ama açıkça güvenliydi. İzler sonunda karın altından çıkan bitkilere ve kıyıdaki güvenli bir alana ulaştı.
+
+Orada hem kutup tavşanı yiyecek buldu hem de fok dinlenebileceği güvenli bir su kenarı keşfetti.
+
+Beyaz tilki memnuniyetle gülümsedi:
+"Tecrübeli ayakların açtığı yolu izlemek, bazen kendi hatanı yapmaktan daha akıllıcadır."`,
+        ending: 'Ders: Bilgeliğin işaretlerini izleyen, tehlikeyi azaltır ve kazancı artırır.'
+      }
+    };
+
+    const pathNames = {
+      A:'Kararmış bölgeye git',
+      B:'Önce çevreyi incele',
+      A1:'Hızlıca ilerle',
+      A2:'Geri çekil, güvenli yol ara',
+      B1:'Uzaktan gözlem yap',
+      B2:'İzleri takip et',
+      A1a:'Kutup tavşanı önden gitsin',
+      A1b:'Yan yana ilerlesinler',
+      A2a:'Uzun kıyı yolu',
+      A2b:'Kısa açık yol',
+      B1a:'Kutup ayısının yönünü izle',
+      B1b:'Boş alanı fırsat say',
+      B2a:'Kuş izleri',
+      B2b:'Ren geyiği izleri'
+    };
+
+    const storyText = document.getElementById('storyText');
+    const choicesBox = document.getElementById('choices');
+    const chapterTag = document.getElementById('chapterTag');
+    const endingBox = document.getElementById('endingBox');
+    const endingTitle = document.getElementById('endingTitle');
+    const endingLesson = document.getElementById('endingLesson');
+    const backBtn = document.getElementById('backBtn');
+    const restartBtn = document.getElementById('restartBtn');
+
+    let currentNode = 'start';
+    let historyStack = [];
+    let pathStack = [];
+
+    function render(nodeKey){
+      const node = nodes[nodeKey];
+      currentNode = nodeKey;
+      chapterTag.textContent = node.tag;
+      storyText.textContent = node.text;
+      choicesBox.innerHTML = '';
+
+      if(node.choices){
+        node.choices.forEach(choice => {
+          const btn = document.createElement('button');
+          btn.className = 'choice-btn';
+          btn.innerHTML = `<span class="choice-code">${choice.code}</span>${choice.label}`;
+          btn.addEventListener('click', () => {
+            historyStack.push(currentNode);
+            pathStack.push(choice.code);
+            updatePath();
+            render(choice.next);
+          });
+          choicesBox.appendChild(btn);
+        });
+        endingBox.classList.remove('show');
+      } else {
+        endingTitle.textContent = node.tag;
+        endingLesson.textContent = node.ending || '';
+        endingBox.classList.add('show');
+      }
+
+      backBtn.disabled = historyStack.length === 0;
+      backBtn.style.opacity = historyStack.length === 0 ? '.5' : '1';
+      backBtn.style.cursor = historyStack.length === 0 ? 'not-allowed' : 'pointer';
+    }
+
+    function updatePath(){
+      // sağ panel kaldırıldığı için ilerleme listesi gösterilmiyor
+    }
+
+    backBtn.addEventListener('click', () => {
+      if(historyStack.length === 0) return;
+      const prev = historyStack.pop();
+      pathStack.pop();
+      updatePath();
+      render(prev);
+    });
+
+    restartBtn.addEventListener('click', () => {
+      historyStack = [];
+      pathStack = [];
+      updatePath();
+      render('start');
+    });
+
+    updatePath();
+    render('start');
+  </script>
+</body>
+</html>
